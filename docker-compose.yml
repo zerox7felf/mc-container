@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mc-server:
+    image: mc-server
+    container_name: mc-server
+    ports:
+      - "25565:25565"
+    volumes:
+      - type: bind
+        source: ${SERVER_DIR-./mc}
+        target: /opt/minecraft/server
+    env_file: .env
+    stop_grace_period: 1m30s
