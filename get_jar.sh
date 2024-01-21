@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 server_version=$1
 
