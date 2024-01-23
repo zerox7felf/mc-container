@@ -7,5 +7,9 @@ services:
       - "25565:25565"
     volumes:
       - "${SERVER_DIR-./mc}:/opt/minecraft/server:z"
-    env_file: .env
     stop_grace_period: 4m   # Saves level and stops server on SIGTERM, may take a while dep. on level size.
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS}
+      SERVER_VERSION: ${SERVER_VERSION}
+      RCON_PASSWD: ${RCON_PASSWD}
+

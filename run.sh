@@ -64,5 +64,5 @@ trap stop_server_trap SIGTERM
 
 # Start server
 cd /opt/minecraft/server/
-java -jar server.jar $JAVA_OPTS --nogui &
+java $JAVA_OPTS -jar server.jar --nogui &
 wait $!
