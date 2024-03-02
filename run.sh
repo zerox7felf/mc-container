@@ -10,19 +10,47 @@ SERVER_VERSION=${SERVER_VERSION:-latest}
 function install_new_version {
     pushd /opt/minecraft
 
-    # If SERVER_VERSION is "latest", look up which actual version that is
-    if [ "$SERVER_VERSION" == "latest" ]; then
-        server_version="$(curl -s https://launchermeta.mojang.com/mc/game/version_manifest.json | jq -r ".latest.release")"
-        if [ -z "$server_version" ]; then
-            echo "Failed to look up latest version"
+    if [[ "$SERVER_VERSION" =~ ^fabric-.*$ ]]; then
+        # Fabric server
+        echo "Getting fabric server..."
+
+        fabric_mc_version="$(echo "$SERVER_VERSION" | cut -d- -f2)"
+        fabric_loader_version="$(echo "$SERVER_VERSION" | cut -d- -f3)"
+        fabric_installer_version="$(echo "$SERVER_VERSION" | cut -d- -f4)"
+
+        if [ -z "$fabric_mc_version" ]; then
+            echo "Missing MC version for fabric download!"; exit 1
+        elif [ -z "$fabric_loader_version" ]; then
+            echo "Missing Fabric Loader version for fabric download!"; exit 1
+        elif [ -z "$fabric_installer_version" ]; then
+            echo "Missing Fabric Installer version for fabric download!"; exit 1
+        fi
+        
+        echo "Downloading Fabric jar for MC $fabric_mc_version, fabric loader $fabric_loader_version, fabric installer $fabric_installer_version..."
+        jar_url="https://meta.fabricmc.net/v2/versions/loader/$fabric_mc_version/$fabric_loader_version/$fabric_installer_version/server/jar"
+        curl -f -# "$jar_url" -o /opt/minecraft/server/server.jar
+        if [ "$?" != 0 ]; then 
+            echo "Failed to download server jar for $server_version!"
             exit 1
         fi
     else
-        server_version="$SERVER_VERSION"
-    fi
+        # Vanilla server
+        echo "Getting vanilla server..."
 
-    # Download server jar, exit if we fail
-    ./get_jar.sh "$server_version" || exit 1
+        if [ "$SERVER_VERSION" == "latest" ]; then
+            # If SERVER_VERSION is "latest", look up which actual version that is
+            server_version="$(curl -s https://launchermeta.mojang.com/mc/game/version_manifest.json | jq -r ".latest.release")"
+            if [ -z "$server_version" ]; then
+                echo "Failed to look up latest version"
+                exit 1
+            fi
+        else
+            server_version="$SERVER_VERSION"
+        fi
+
+        # Download server jar, exit if we fail
+        ./get_jar.sh "$server_version" || exit 1
+    fi
 
     # Mark successful version installed
     echo "$SERVER_VERSION" > server/installed_version
