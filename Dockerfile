@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk update && apk add bash curl jq openjdk17-jre-headless gcc musl-dev make
+RUN apk update && apk add bash curl jq openjdk21-jre-headless gcc musl-dev make
 
 # Download, build and install mcrcon into /opt/minecraft
 WORKDIR /tmp/mcrcon
